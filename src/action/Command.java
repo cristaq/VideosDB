@@ -50,7 +50,7 @@ public interface Command {
                 message = udb.getUsers().get(action.getUsername()).favourite(action.getTitle());
                 break;
             case "rating":
-                message = udb.getUsers().get(action.getUsername()).rate(action.getTitle(), action.getGrade());
+                message = udb.getUsers().get(action.getUsername()).rate(action);
                 break;
             default:
                 return;

@@ -19,4 +19,19 @@ public class Movie extends Video {
     public int getDuration() {
         return duration;
     }
+
+    @Override
+    public double rating(UserDatabase udb) {
+        double rating = 0;
+        int counter = 0;
+        for(Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
+            if(entry.getValue().getRated().containsKey(getTitle())) {
+                counter++;
+                rating += entry.getValue().getRated().get(getTitle());
+            }
+        }
+        if(counter == 0)
+            return 0;
+        return rating / counter;
+    }
 }

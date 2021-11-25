@@ -10,7 +10,6 @@ public class Video {
     private int year;
     private ArrayList<String> genres;
     private ArrayList<String> actors;
-    private Double rating;
 
     public Video(String title, int year, ArrayList<String> genres, ArrayList<String> actors) {
         this.title = title;
@@ -39,6 +38,11 @@ public class Video {
         return fav;
     }
 
+    //Overridden in movie and show
+    public double rating(UserDatabase udb) {
+        return 0;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -51,12 +55,12 @@ public class Video {
         return genres;
     }
 
-    public Double getRating() {
-        return rating;
-    }
-
     //Overridden in movie and show
     public int getDuration() {
         return 0;
+    }
+
+    public ArrayList<String> getActors() {
+        return actors;
     }
 }

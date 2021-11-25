@@ -6,6 +6,7 @@ import checker.Checkstyle;
 import checker.Checker;
 import common.Constants;
 import database.*;
+import entertainment.User;
 import entertainment.Video;
 import fileio.*;
 import org.json.simple.JSONArray;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -94,7 +96,7 @@ public final class Main {
                     Command.act(udb, arrayResult, fileWriter, a);
                     break;
                 case "query":
-                    Query.act(udb, videodb, arrayResult, fileWriter, a);
+                    Query.act(udb, videodb, actordb, arrayResult, fileWriter, a);
             }
         }
 

@@ -2,6 +2,7 @@ package entertainment;
 
 import database.MovieDatabase;
 import database.VideoDatabase;
+import fileio.ActionInputData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,20 +48,30 @@ public class User {
         return message;
     }
 
-    public String rate(String title, Double grade) {
+    public String rate(ActionInputData action) {
         String message = "";
+        String title = "";
+        if(action.getSeasonNumber() != 0) {
+            title = action.getTitle() + " season " + action.getSeasonNumber();
+        }
+        else {
+            title = action.getTitle();
+        }
+
         if (rated.containsKey(title)) {
-            message = "error -> " + title + " has been already rated";
+            message = "error -> " + action.getTitle() + " has been already rated";
             return message;
         }
 
-        if (!history.containsKey(title)) {
-            message = "error -> " + title + " is not seen";
+
+        if (!history.containsKey(action.getTitle())) {
+            message = "error -> " + action.getTitle() + " is not seen";
             return message;
         }
 
-        rated.put(title, grade);
-        message = "success -> " + title + " was rated with " + grade + " by " + username;
+        rated.put(title, action.getGrade());
+        message = "success -> " + action.getTitle() + " was rated with " + action.getGrade()
+                + " by " + username;
         return message;
 
     }
@@ -79,5 +90,9 @@ public class User {
 
     public ArrayList<String> getFavoriteMovies() {
         return favoriteMovies;
+    }
+
+    public HashMap<String, Double> getRated() {
+        return rated;
     }
 }
