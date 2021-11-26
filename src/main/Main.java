@@ -2,12 +2,11 @@ package main;
 
 import action.Command;
 import action.Query;
+import action.Recommendation;
 import checker.Checkstyle;
 import checker.Checker;
 import common.Constants;
 import database.*;
-import entertainment.User;
-import entertainment.Video;
 import fileio.*;
 import org.json.simple.JSONArray;
 
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -78,25 +76,22 @@ public final class Main {
         UserDatabase udb = new UserDatabase();
         udb.addUsers(input.getUsers());
 
-        MovieDatabase moviedb = new MovieDatabase();
-        moviedb.addMovies(input.getMovies());
-
-        ShowDatabase showdb = new ShowDatabase();
-        showdb.addShows(input.getSerials());
-
         ActorDatabase actordb = new ActorDatabase();
         actordb.addActors(input.getActors());
 
         VideoDatabase videodb = new VideoDatabase();
         videodb.addVideos(input.getMovies(), input.getSerials());
 
-        for(ActionInputData a : input.getCommands()) {
+        for (ActionInputData a : input.getCommands()) {
             switch (a.getActionType()) {
                 case "command":
                     Command.act(udb, arrayResult, fileWriter, a);
                     break;
                 case "query":
                     Query.act(udb, videodb, actordb, arrayResult, fileWriter, a);
+                    break;
+                case "recommendation":
+                    Recommendation.act(udb, videodb, arrayResult, fileWriter, a);
             }
         }
 

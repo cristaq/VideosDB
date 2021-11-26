@@ -1,6 +1,8 @@
 package action;
 
-import database.*;
+import database.ActorDatabase;
+import database.UserDatabase;
+import database.VideoDatabase;
 import fileio.ActionInputData;
 import fileio.Writer;
 import org.json.simple.JSONArray;

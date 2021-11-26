@@ -7,11 +7,16 @@ import fileio.ActionInputData;
 import fileio.MovieInputData;
 import fileio.SerialInputData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 
-public class VideoDatabase {
-    private HashMap<String, Video> movies = new HashMap<>();
-    private HashMap<String, Video> shows = new HashMap<>();
+
+public final class VideoDatabase {
+    private LinkedHashMap<String, Video> movies = new LinkedHashMap<>();
+    private LinkedHashMap<String, Video> shows = new LinkedHashMap<>();
 
 
     public void addVideos(final List<MovieInputData> m, final List<SerialInputData> s) {
@@ -39,63 +44,69 @@ public class VideoDatabase {
         }
     }
 
-    public HashMap<String, Video> getMovies() {
+    public LinkedHashMap<String, Video> getMovies() {
         return movies;
     }
 
-    public HashMap<String, Video> getShows() {
+    public LinkedHashMap<String, Video> getShows() {
         return shows;
     }
 
-    public String videoQ(UserDatabase udb, ActionInputData action) {
+    public String videoQ(final UserDatabase udb, final ActionInputData action) {
         StringBuilder message = new StringBuilder();
         int max = action.getNumber();
         List<Video> query = new ArrayList<>();
 
         if (action.getObjectType().equals("movies")) {
             for (Map.Entry<String, Video> entry : movies.entrySet()) {
-                if(filter(action, entry.getValue(), udb)) {
+                if (filter(action, entry.getValue(), udb)) {
                     query.add(entry.getValue());
                 }
             }
-        }
-        else {
+        } else {
             for (Map.Entry<String, Video> entry : shows.entrySet()) {
-                if(filter(action, entry.getValue(), udb)) {
+                if (filter(action, entry.getValue(), udb)) {
                     query.add(entry.getValue());
                 }
             }
         }
-
         if (action.getCriteria().equals("longest")) {
             query.sort(new Comparator<Video>() {
                 @Override
-                public int compare(Video o1, Video o2) {
+                public int compare(final Video o1, final Video o2) {
+                    if(o1.getDuration() - o2.getDuration() == 0) {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
                     return o1.getDuration() - o2.getDuration();
                 }
             });
-        }
-        if (action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite")) {
+        } else if (action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite")) {
             query.sort(new Comparator<Video>() {
                 @Override
-                public int compare(Video o1, Video o2) {
+                public int compare(final Video o1, final Video o2) {
+                    if(o1.favourites(udb) - o2.favourites(udb) == 0) {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
                     return o1.favourites(udb) - o2.favourites(udb);
                 }
             });
-        }
-        if (action.getCriteria().equals("most_viewed")) {
+        } else if (action.getCriteria().equals("most_viewed")) {
             query.sort(new Comparator<Video>() {
                 @Override
-                public int compare(Video o1, Video o2) {
+                public int compare(final Video o1, final Video o2) {
+                    if(o1.views(udb) - o2.views(udb) == 0) {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
                     return o1.views(udb) - o2.views(udb);
                 }
             });
-        }
-
-        if (action.getCriteria().equals("ratings")) {
+        }else if (action.getCriteria().equals("ratings")) {
             query.sort(new Comparator<Video>() {
                 @Override
-                public int compare(Video o1, Video o2) {
+                public int compare(final Video o1, final Video o2) {
+                    if(Double.compare(o1.rating(udb), o2.rating(udb)) == 0) {
+                        return o1.getTitle().compareTo(o2.getTitle());
+                    }
                     return Double.compare(o1.rating(udb), o2.rating(udb));
                 }
             });
@@ -110,8 +121,7 @@ public class VideoDatabase {
                 message.append(", ");
                 check = 1;
             }
-        }
-        else {
+        } else {
             int counter = 0;
             for (int i = query.size() - 1; counter < max && i >= 0; i--) {
                 message.append(query.get(i).getTitle());
@@ -128,28 +138,31 @@ public class VideoDatabase {
 
     }
 
-    public boolean filter(ActionInputData action, Video video, UserDatabase udb) {
+    public boolean filter(final ActionInputData action, final Video video,
+                          final UserDatabase udb) {
         String year = String.valueOf(video.getYear());
-        if (!action.getFilters().get(0).contains(year)) {
-            return false;
-        }
 
-        for (String s : action.getFilters().get(1)) {
-            if (!video.getGenres().contains(s)) {
+        if (action.getFilters().get(0).get(0) != null) {
+            if (!action.getFilters().get(0).contains(year)) {
                 return false;
             }
         }
 
-        if((action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite"))
-                && video.favourites(udb) == 0) {
-            return false;
+        if(action.getFilters().get(1).get(0) != null) {
+            for (String s : action.getFilters().get(1)) {
+                if (!video.getGenres().contains(s)) {
+                    return false;
+                }
+            }
         }
 
-        if(action.getCriteria().equals("most_viewed") && video.views(udb) == 0) {
+        if (action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite")) {
+            if (video.favourites(udb) == 0) {
+                return false;
+            }
+        } else if (action.getCriteria().equals("most_viewed") && video.views(udb) == 0) {
             return false;
-        }
-
-        if(action.getCriteria().equals("ratings") && video.rating(udb) == 0) {
+        }else if (action.getCriteria().equals("ratings") && video.rating(udb) == 0) {
             return false;
         }
 

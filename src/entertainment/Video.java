@@ -11,27 +11,28 @@ public class Video {
     private ArrayList<String> genres;
     private ArrayList<String> actors;
 
-    public Video(String title, int year, ArrayList<String> genres, ArrayList<String> actors) {
+    public Video(final String title, final int year, final ArrayList<String> genres,
+                 final ArrayList<String> actors) {
         this.title = title;
         this.year = year;
         this.genres = genres;
         this.actors = actors;
     }
 
-    public int views(UserDatabase udb) {
+    public int views(final UserDatabase udb) {
         int views = 0;
-        for(Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
-            if(entry.getValue().getHistory().containsKey(title)) {
+        for (Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
+            if (entry.getValue().getHistory().containsKey(title)) {
                 views += entry.getValue().getHistory().get(title);
             }
         }
         return views;
     }
 
-    public int favourites(UserDatabase udb) {
+    public int favourites(final UserDatabase udb) {
         int fav = 0;
-        for(Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
-            if(entry.getValue().getFavoriteMovies().contains(title)) {
+        for (Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
+            if (entry.getValue().getFavoriteMovies().contains(title)) {
                 fav++;
             }
         }

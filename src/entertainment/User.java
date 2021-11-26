@@ -1,40 +1,38 @@
 package entertainment;
 
-import database.MovieDatabase;
-import database.VideoDatabase;
 import fileio.ActionInputData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public final class User {
     private String username;
     private String subscriptionType;
     private Map<String, Integer> history;
     private ArrayList<String> favoriteMovies;
     private HashMap<String, Double> rated = new HashMap<>();
 
-    public User (String username, String subscriptionType, Map<String, Integer> history, ArrayList<String> favoriteMovies){
+    public User(final String username, final String subscriptionType,
+                 final Map<String, Integer> history, final ArrayList<String> favoriteMovies) {
         this.username = username;
         this.subscriptionType = subscriptionType;
         this.history = history;
         this.favoriteMovies = favoriteMovies;
     }
 
-    public String view(String title) {
+    public String view(final String title) {
         String message;
         if (history.containsKey(title)) {
             history.replace(title, history.get(title) + 1);
-        }
-        else {
+        } else {
             history.put(title, 1);
         }
         message = "success -> " + title + " was viewed with total views of " + history.get(title);
         return message;
     }
 
-    public String favourite(String title) {
+    public String favourite(final String title) {
         String message;
         if (!history.containsKey(title)) {
             message = "error -> " + title + " is not seen";
@@ -44,17 +42,18 @@ public class User {
             message = "error -> " + title + " is already in favourite list";
             return message;
         }
+
+        favoriteMovies.add(title);
         message = "success -> " + title + " was added as favourite";
         return message;
     }
 
-    public String rate(ActionInputData action) {
+    public String rate(final ActionInputData action) {
         String message = "";
         String title = "";
-        if(action.getSeasonNumber() != 0) {
+        if (action.getSeasonNumber() != 0) {
             title = action.getTitle() + " season " + action.getSeasonNumber();
-        }
-        else {
+        } else {
             title = action.getTitle();
         }
 
