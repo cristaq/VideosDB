@@ -1,16 +1,16 @@
 package entertainment;
 
-import database.UserDatabase;
 import java.util.ArrayList;
-import java.util.Map;
 
 public final class Movie extends Video {
     private int duration;
+    private ArrayList<Double> ratings;
 
     public Movie(final String title, final int year, final ArrayList<String> genres,
                  final ArrayList<String> actors, final int duration) {
         super(title, year, genres, actors);
         this.duration = duration;
+        ratings = new ArrayList<>();
     }
 
     @Override
@@ -19,18 +19,19 @@ public final class Movie extends Video {
     }
 
     @Override
-    public double rating(final UserDatabase udb) {
-        double rating = 0;
-        int counter = 0;
-        for (Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
-            if (entry.getValue().getRated().containsKey(getTitle())) {
-                counter++;
-                rating += entry.getValue().getRated().get(getTitle());
-            }
-        }
-        if (counter == 0) {
+    public double rating() {
+        double sum = 0;
+        if (ratings.size() == 0) {
             return 0;
         }
-        return rating / counter;
+        for (Double rating : ratings) {
+            sum += rating;
+        }
+        return sum / ratings.size();
+    }
+
+    @Override
+    public void addRating(final Double rating, final int seasonNumber) {
+        ratings.add(rating);
     }
 }

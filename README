@@ -1,38 +1,53 @@
-Object Oriented Programming Course
-Homework - VideosDB
+Cristache Cristian Valentin 321CD
 
-November 2021
+Structura proiectului:
 
-# Info
-https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema
+****************************************************************************
 
-# About the code
+./src/action
+Aici se afla 3 interfete pentru fiecare tip de actiune: Command, Query,
+si Recommend. Ele optin mesajul de scris in JSONArray din alte functii,
+si il scriu. Contin doar functii statice si nu necesita implementari.
 
-We provide the input tests, the logic that parses them and the checker that runs them.
+****************************************************************************
 
-* test_db - contains the tests in JSON format
-* src
-   * checker - the checker's sources including the checkstyle necessary files, not to be modified
-   * fileio - classes for parsing the input files, not to be modified
-   * common, utils
-        * contain utility classes with constants and static methods
-        * you can add your own functionality in the existing classes or add new classes as well
-   * actor
-        * contains an enum for the types of awards an actor can have - do not modify it
-        * you can add here your actor related classes
-   * entertainment
-        * contains an enum for the supported video genres - do not modify it
-        * class for representing a Season of a tv show - do not modify it
-        * you can add here your entertainment related classes
+./src/actor:
+Clasa actor impreuna cu tipurile de awards pe care le pot avea.
 
-We encourage you to organize your implementation in packages based on the functionality their classes offer. Try to keep
-your code modular, readable and documented.
+****************************************************************************
 
-# Testing
+./src/database
+Avem 3 tipuri de baze de date: ActorDatabase, UserDatabase si VideoDatabse.
+Fiecare are cate un camp LinkedHashMap unde retin actorii, userii sau
+videourile din input. VideoDatabase are 2, unul pentru filme, unul
+pentru seriale. Fiecare are o metoda de implementare a query-ului
+corespunzator tipului de date si o metoda pentru popularea database-ului.
 
-The Main class runs the checker on your implementation. Add the entry point to your implementation in it.
+****************************************************************************
 
-Run Main to test your implementation from the IDE or from command line.
+./src/entertainment
+    Clasa Video - o clasa abstracta care contine campurile si metodele comune
+pentru filme si seriale. Ce nu este in comun este implementat in clasele
+respective. Mai exact, difera modalitatea prin care se caluleaza ratingul
+si durata dar si cum adaugam un rating. Deci, rating, getDuration si addrating
+sunt metode abstracte, de impementat in Movie si Show.
 
-Run the main method from Test class with the name of the input file from the command line and the result will be written
-to the out.txt file. Thus, you can compare this result with ref.
+    Clasa Movie si Show - subclase pentru Video.
+
+    Clasa User - retine toate detaliile legate de user
+
+*****************************************************************************
+
+FLOW-UL PROGRAMULUI:
+    Se initializeaza bazele de date: actor, user si video.
+    Se ia fiecare actiune in parte si se apeleaza functia corespunzatoare:
+Command, Query sau Recommendation. Ele apeleaza diferite metode in functie
+de subtipul actiunii. Mesajele obtinute de ele sunt scrise in JSONArray.
+    Pentru Command, user are o functie pentru fiecare tip. Se modifica insa
+si videourile pentru a le adauga views, favourites sau ratinguri.
+    Pentru Query, fiecare clasa implicata are o functie care rezolva
+acel query. Toate presupun cam aceeasi pasi: creearea unui ArrayList query,
+sortarea dupa un anumit criteriu (longest, awards etc), si formularea
+mesajului de pus in JSONArray.
+    Pentru Recommend, toate functiile sunt in interfata. Prespune insa cam
+aceeasi pasi ca si query.

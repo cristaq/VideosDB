@@ -1,8 +1,6 @@
 package entertainment;
 
-import database.UserDatabase;
 import java.util.ArrayList;
-import java.util.Map;
 
 public final class Show extends Video {
     private int numberOfSeasons;
@@ -26,26 +24,26 @@ public final class Show extends Video {
     }
 
     @Override
-    public double rating(final UserDatabase udb) {
-        double rating = 0;
-        int counter = 0;
-        double ratingTotal = 0;
-
-        for (Map.Entry<String, User> entry : udb.getUsers().entrySet()) {
-            rating = 0;
-            for (String key : entry.getValue().getRated().keySet()) {
-                if (key.contains(getTitle())) {
-                    rating += entry.getValue().getRated().get(key);
-                }
+    public double rating() {
+        double sum = 0;
+        double totalSum = 0;
+        for (Season season : seasons) {
+            sum = 0;
+            for (Double rating : season.getRatings()) {
+                sum += rating;
             }
-            ratingTotal += rating / numberOfSeasons;
-            if (rating != 0) {
-                counter++;
+            if (season.getRatings().size() != 0) {
+                totalSum += sum / season.getRatings().size();
             }
         }
-        if (counter == 0) {
+        if (totalSum == 0) {
             return 0;
         }
-        return ratingTotal / counter;
+        return totalSum / numberOfSeasons;
+    }
+
+    @Override
+    public void addRating(final Double rating, final int seasonNumber) {
+        seasons.get(seasonNumber - 1).getRatings().add(rating);
     }
 }

@@ -9,12 +9,27 @@ import fileio.Writer;
 import org.json.simple.JSONArray;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Comparator;
 
 public interface Recommendation {
+
+    /**
+     * handles all recommendations by calling specific functions depending
+     * on the type of the recommendation specified in action.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param result a JSONArray in which we will write the output
+     * @param fileWriter used for writing in JSONArray
+     * @param action the action we must process
+     * @throws IOException required by Writer
+     */
     static void act(UserDatabase udb, VideoDatabase videodb, JSONArray result, Writer fileWriter,
                     ActionInputData action) throws IOException {
-        String message = "";
+        String message;
         switch (action.getType()) {
             case "standard":
                 message = standard(udb, videodb, action);
@@ -38,9 +53,17 @@ public interface Recommendation {
         result.add(result.size(), fileWriter.writeFile(action.getActionId(), "", message));
     }
 
+    /**
+     * Function that handles the standard recommendation.
+     * It returns the first unseen video by a user specified in action.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action to be implemented
+     * @return message with the recommended video or error
+     */
     static String standard(final UserDatabase udb, final VideoDatabase videodb,
                             final ActionInputData action) {
-        String message = "";
+        String message;
         User user = udb.getUsers().get(action.getUsername());
         boolean found = false;
         String title = "";
@@ -68,9 +91,18 @@ public interface Recommendation {
         return message;
     }
 
+    /**
+     * Function that handles the bestUnseen recommendation.
+     * It returns the first unseen video for a user specified in action,
+     * from a queue ordered by ratings.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action to be implemented
+     * @return message with the recommended video or error
+     */
     static String bestUnseen(final UserDatabase udb, final VideoDatabase videodb,
                              final ActionInputData action) {
-        String message = "";
+        String message;
         List<Video> query = new ArrayList<>();
         User user = udb.getUsers().get(action.getUsername());
 
@@ -84,8 +116,8 @@ public interface Recommendation {
 
         query.sort(new Comparator<Video>() {
             @Override
-            public int compare(Video o1, Video o2) {
-                return Double.compare(o2.rating(udb), o1.rating(udb));
+            public int compare(final Video o1, final Video o2) {
+                return Double.compare(o2.rating(), o1.rating());
             }
         });
 
@@ -99,6 +131,15 @@ public interface Recommendation {
         return message;
     }
 
+    /**
+     * Function that handles the popular recommendation.
+     * It returns the first unseen video with a specific genre,
+     * for a user specified in action, from a queue ordered by genres with most views.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action to be implemented
+     * @return message with the recommended video or error
+     */
     static String popular(final UserDatabase udb, final VideoDatabase videodb,
                             final ActionInputData action) {
         List<Video> query = new ArrayList<>();
@@ -109,13 +150,13 @@ public interface Recommendation {
         }
 
         for (Map.Entry<String, Video> entry : videodb.getMovies().entrySet()) {
-            if (entry.getValue().views(udb) != 0) {
+            if (entry.getValue().getViews() != 0) {
                 query.add(entry.getValue());
             }
         }
 
         for (Map.Entry<String, Video> entry : videodb.getShows().entrySet()) {
-            if (entry.getValue().views(udb) != 0) {
+            if (entry.getValue().getViews() != 0) {
                 query.add(entry.getValue());
             }
         }
@@ -128,7 +169,7 @@ public interface Recommendation {
                     popularGenres.put(s, 0);
                 } else {
                     int oldValue = popularGenres.get(s);
-                    popularGenres.replace(s, oldValue + video.views(udb));
+                    popularGenres.replace(s, oldValue + video.getViews());
                 }
             }
         }
@@ -136,7 +177,8 @@ public interface Recommendation {
         List<Map.Entry<String, Integer>> entries = new ArrayList<>(popularGenres.entrySet());
         entries.sort(new Comparator<Map.Entry<String, Integer>>() {
             @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+            public int compare(final Map.Entry<String, Integer> o1,
+                               final Map.Entry<String, Integer> o2) {
                 return o2.getValue() - o1.getValue();
             }
         });
@@ -154,6 +196,15 @@ public interface Recommendation {
 
     }
 
+    /**
+     * Function that handles the favourite recommendation.
+     * It returns the first unseen video for a user specified in action,
+     * from a queue ordered by favourite count.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action to be implemented
+     * @return message with the recommended video or error
+     */
     static String favourite(final UserDatabase udb, final VideoDatabase videodb,
                          final ActionInputData action) {
         String message = "";
@@ -165,21 +216,21 @@ public interface Recommendation {
         }
 
         for (Map.Entry<String, Video> entry : videodb.getMovies().entrySet()) {
-            if (entry.getValue().favourites(udb) != 0) {
+            if (entry.getValue().getFavourites() != 0) {
                 query.add(entry.getValue());
             }
         }
 
         for (Map.Entry<String, Video> entry : videodb.getShows().entrySet()) {
-            if (entry.getValue().favourites(udb) != 0) {
+            if (entry.getValue().getFavourites() != 0) {
                 query.add(entry.getValue());
             }
         }
 
         query.sort(new Comparator<Video>() {
             @Override
-            public int compare(Video o1, Video o2) {
-                return o2.favourites(udb) - o1.favourites(udb);
+            public int compare(final Video o1, final Video o2) {
+                return o2.getFavourites() - o1.getFavourites();
             }
         });
 
@@ -194,6 +245,15 @@ public interface Recommendation {
 
     }
 
+    /**
+     * Function that handles the search recommendation.
+     * It returns the all unseen videos for a user specified in action,
+     * from a queue ordered by ratings.
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action to be implemented
+     * @return message with the recommended video or error
+     */
     static String search(final UserDatabase udb, final VideoDatabase videodb,
                          final ActionInputData action) {
         StringBuilder message = new StringBuilder();
@@ -219,10 +279,10 @@ public interface Recommendation {
         query.sort(new Comparator<Video>() {
             @Override
             public int compare(final Video o1, final Video o2) {
-                if (Double.compare(o1.rating(udb), o2.rating(udb)) == 0) {
+                if (Double.compare(o1.rating(), o2.rating()) == 0) {
                     return o1.getTitle().compareTo(o2.getTitle());
                 }
-                return Double.compare(o1.rating(udb), o2.rating(udb));
+                return Double.compare(o1.rating(), o2.rating());
             }
         });
 

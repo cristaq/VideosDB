@@ -13,13 +13,22 @@ import java.util.Map;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 
-
+/**
+ * Class that stores both movies and shows in two LinkedHashMaps
+ */
 public final class VideoDatabase {
     private LinkedHashMap<String, Video> movies = new LinkedHashMap<>();
     private LinkedHashMap<String, Video> shows = new LinkedHashMap<>();
 
-
-    public void addVideos(final List<MovieInputData> m, final List<SerialInputData> s) {
+    /**
+     * Adds videos into the LinkedHashMaps. Movies and shows will be stored into
+     * two separate maps.
+     * The LinkedHashMap provides easy access and maintains the order from input
+     * @param m List of movies given as input
+     * @param s List of shows given as input
+     */
+    public void addVideos(final UserDatabase udb,
+                          final List<MovieInputData> m, final List<SerialInputData> s) {
         for (MovieInputData i : m) {
             Movie newMovie = new Movie(
                     i.getTitle(),
@@ -28,6 +37,7 @@ public final class VideoDatabase {
                     i.getCast(),
                     i.getDuration()
             );
+            newMovie.initStats(udb);
             movies.put(i.getTitle(), newMovie);
         }
 
@@ -40,6 +50,7 @@ public final class VideoDatabase {
                     i.getNumberSeason(),
                     i.getSeasons()
             );
+            newShow.initStats(udb);
             shows.put(i.getTitle(), newShow);
         }
     }
@@ -52,6 +63,17 @@ public final class VideoDatabase {
         return shows;
     }
 
+    /**
+     * This function will handle all types of queries that apply to videos.
+     * It creates an array with references for all videos and sorts them
+     * depending on the type of query. It also generates the message with
+     * the result of the query.
+     * Query types: longest, most viewed, the best ratings
+     * and most frequently added to favourites
+     * @param udb a database of users
+     * @param action the action we must process
+     * @return the message to be written in the JSONArray
+     */
     public String videoQ(final UserDatabase udb, final ActionInputData action) {
         StringBuilder message = new StringBuilder();
         int max = action.getNumber();
@@ -70,46 +92,46 @@ public final class VideoDatabase {
                 }
             }
         }
-        if (action.getCriteria().equals("longest")) {
-            query.sort(new Comparator<Video>() {
+        switch (action.getCriteria()) {
+            case "longest" -> query.sort(new Comparator<Video>() {
                 @Override
                 public int compare(final Video o1, final Video o2) {
-                    if(o1.getDuration() - o2.getDuration() == 0) {
+                    if (o1.getDuration() - o2.getDuration() == 0) {
                         return o1.getTitle().compareTo(o2.getTitle());
                     }
                     return o1.getDuration() - o2.getDuration();
                 }
             });
-        } else if (action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite")) {
-            query.sort(new Comparator<Video>() {
+            case "favorite", "favourite" -> query.sort(new Comparator<Video>() {
                 @Override
                 public int compare(final Video o1, final Video o2) {
-                    if(o1.favourites(udb) - o2.favourites(udb) == 0) {
+                    if (o1.getFavourites() - o2.getFavourites() == 0) {
                         return o1.getTitle().compareTo(o2.getTitle());
                     }
-                    return o1.favourites(udb) - o2.favourites(udb);
+                    return o1.getFavourites() - o2.getFavourites();
                 }
             });
-        } else if (action.getCriteria().equals("most_viewed")) {
-            query.sort(new Comparator<Video>() {
+            case "most_viewed" -> query.sort(new Comparator<Video>() {
                 @Override
                 public int compare(final Video o1, final Video o2) {
-                    if(o1.views(udb) - o2.views(udb) == 0) {
+                    if (o1.getViews() - o2.getViews() == 0) {
                         return o1.getTitle().compareTo(o2.getTitle());
                     }
-                    return o1.views(udb) - o2.views(udb);
+                    return o1.getViews() - o2.getViews();
                 }
             });
-        }else if (action.getCriteria().equals("ratings")) {
-            query.sort(new Comparator<Video>() {
+            case "ratings" -> query.sort(new Comparator<Video>() {
                 @Override
                 public int compare(final Video o1, final Video o2) {
-                    if(Double.compare(o1.rating(udb), o2.rating(udb)) == 0) {
+                    if (Double.compare(o1.rating(), o2.rating()) == 0) {
                         return o1.getTitle().compareTo(o2.getTitle());
                     }
-                    return Double.compare(o1.rating(udb), o2.rating(udb));
+                    return Double.compare(o1.rating(), o2.rating());
                 }
             });
+            default -> {
+                return "error";
+            }
         }
 
         message = new StringBuilder();
@@ -138,6 +160,15 @@ public final class VideoDatabase {
 
     }
 
+    /**
+     * Used to apply filters on videos depending on action type.
+     * Called in actorQ when deciding what videos to place in query.
+     * @param action the action we must process
+     * @param video the video to be filtered
+     * @param udb a database of users
+     * @return true if the video has all the necessary attributes to be
+     * considered for the query
+     */
     public boolean filter(final ActionInputData action, final Video video,
                           final UserDatabase udb) {
         String year = String.valueOf(video.getYear());
@@ -148,7 +179,7 @@ public final class VideoDatabase {
             }
         }
 
-        if(action.getFilters().get(1).get(0) != null) {
+        if (action.getFilters().get(1).get(0) != null) {
             for (String s : action.getFilters().get(1)) {
                 if (!video.getGenres().contains(s)) {
                     return false;
@@ -157,12 +188,12 @@ public final class VideoDatabase {
         }
 
         if (action.getCriteria().equals("favorite") || action.getCriteria().equals("favourite")) {
-            if (video.favourites(udb) == 0) {
+            if (video.getFavourites() == 0) {
                 return false;
             }
-        } else if (action.getCriteria().equals("most_viewed") && video.views(udb) == 0) {
+        } else if (action.getCriteria().equals("most_viewed") && video.getViews() == 0) {
             return false;
-        }else if (action.getCriteria().equals("ratings") && video.rating(udb) == 0) {
+        } else if (action.getCriteria().equals("ratings") && video.rating() == 0) {
             return false;
         }
 

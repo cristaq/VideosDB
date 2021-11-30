@@ -14,8 +14,14 @@ import java.util.Comparator;
 
 
 public final class ActorDatabase {
+    static final int FILTER_INDEX = 3;
     private LinkedHashMap<String, Actor> actors = new LinkedHashMap<>();
 
+    /**
+     * Adds actors into the LinkedHashMap. Here all actors will be stored.
+     * The LinkedHashMap provides easy access and maintains the order from input
+     * @param a List of actors given as input
+     */
     public void addActors(final List<ActorInputData> a) {
         for (ActorInputData i : a) {
             Actor newActor = new Actor(
@@ -32,6 +38,16 @@ public final class ActorDatabase {
         return actors;
     }
 
+    /**
+     * This function will handle all types of queries that apply to actors.
+     * It creates an array with references for all actors and sorts them
+     * depending on the type of query.
+     * Query types: based on awards, key-words in description or best rating
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action we must process
+     * @return the message to be written in the JSONArray
+     */
     public String actorQ(final UserDatabase udb, final VideoDatabase videodb,
                          final ActionInputData action) {
         StringBuilder message = new StringBuilder();
@@ -103,6 +119,16 @@ public final class ActorDatabase {
 
     }
 
+    /**
+     * Used to apply filters on actors depending on action type.
+     * Called in actorQ when deciding what actors to place in query.
+     * @param actor the actor we must filter
+     * @param udb a database of users
+     * @param videodb a database of videos
+     * @param action the action we must process
+     * @return true if the actor has all the necessary attributes to be
+     * considered for the query
+     */
     public boolean filter(final Actor actor, final UserDatabase udb,
                           final VideoDatabase videodb, final ActionInputData action) {
         if (action.getCriteria().equals("average")) {
@@ -118,7 +144,7 @@ public final class ActorDatabase {
         }
 
         if (action.getCriteria().equals("awards")) {
-            for (String s : action.getFilters().get(3)) {
+            for (String s : action.getFilters().get(FILTER_INDEX)) {
                 int found = 0;
                 for (ActorsAwards key : actor.getAwards().keySet()) {
                     if (key.toString().equals(s)) {

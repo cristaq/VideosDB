@@ -39,21 +39,26 @@ public final class Actor {
         return awards;
     }
 
+    /**
+     * Calculates the average rating of an actor. That is, the average rating
+     * of all videos in which they play
+     * @return the rating of an actor
+     */
     public double average(final UserDatabase udb, final VideoDatabase videodb) {
         double rating = 0;
         int count = 0;
         double videoRating = 0;
         for (String s : filmography) {
             if (videodb.getMovies().containsKey(s)) {
-                videoRating = videodb.getMovies().get(s).rating(udb);
+                videoRating = videodb.getMovies().get(s).rating();
                 if (Double.compare(videoRating, 0) > 0) {
-                    rating += videodb.getMovies().get(s).rating(udb);
+                    rating += videodb.getMovies().get(s).rating();
                     count++;
                 }
             } else if (videodb.getShows().containsKey(s)) {
-                videoRating = videodb.getShows().get(s).rating(udb);
+                videoRating = videodb.getShows().get(s).rating();
                 if (Double.compare(videoRating, 0) > 0) {
-                    rating += videodb.getShows().get(s).rating(udb);
+                    rating += videodb.getShows().get(s).rating();
                     count++;
                 }
             }
@@ -64,6 +69,10 @@ public final class Actor {
         return rating / count;
     }
 
+    /**
+     * @return searches the description for words
+     * specified in action and returns true if it finds them
+     */
     public boolean searchDescription(final ActionInputData action) {
         for (String s : action.getFilters().get(2)) {
             String check = "\\b(?i)" + s + "\\b";
@@ -76,6 +85,10 @@ public final class Actor {
         return true;
     }
 
+    /**
+     * @return calculates the number of awards an actor has and
+     * returns it
+     */
     public int numberOfAwards() {
         int awardsNumber = 0;
         for (ActorsAwards key : awards.keySet()) {

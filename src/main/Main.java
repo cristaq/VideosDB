@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
- * The entry point to this homework. It runs the checker that tests your implentation.
+ * The entry point to this homework. It runs the checker that tests your implementation.
  */
 public final class Main {
     /**
@@ -80,18 +80,20 @@ public final class Main {
         actordb.addActors(input.getActors());
 
         VideoDatabase videodb = new VideoDatabase();
-        videodb.addVideos(input.getMovies(), input.getSerials());
+        videodb.addVideos(udb, input.getMovies(), input.getSerials());
 
         for (ActionInputData a : input.getCommands()) {
             switch (a.getActionType()) {
                 case "command":
-                    Command.act(udb, arrayResult, fileWriter, a);
+                    Command.act(udb, videodb, arrayResult, fileWriter, a);
                     break;
                 case "query":
                     Query.act(udb, videodb, actordb, arrayResult, fileWriter, a);
                     break;
                 case "recommendation":
                     Recommendation.act(udb, videodb, arrayResult, fileWriter, a);
+                    break;
+                default:
             }
         }
 
