@@ -1,53 +1,53 @@
 Cristache Cristian Valentin 321CD
 
-Structura proiectului:
+Project structure:
 
 ****************************************************************************
 
 ./src/action
-Aici se afla 3 interfete pentru fiecare tip de actiune: Command, Query,
-si Recommend. Ele optin mesajul de scris in JSONArray din alte functii,
-si il scriu. Contin doar functii statice si nu necesita implementari.
+Here are 3 interfaces for each type of action: Command, Query,
+and Recommend. They select the message to write to the JSONArray from other functions,
+and write it. They contain only static functions and require no implementation.
 
 ****************************************************************************
 
 ./src/actor:
-Clasa actor impreuna cu tipurile de awards pe care le pot avea.
+The actor class along with the types of awards they can have.
 
 ****************************************************************************
 
 ./src/database
-Avem 3 tipuri de baze de date: ActorDatabase, UserDatabase si VideoDatabse.
-Fiecare are cate un camp LinkedHashMap unde retin actorii, userii sau
-videourile din input. VideoDatabase are 2, unul pentru filme, unul
-pentru seriale. Fiecare are o metoda de implementare a query-ului
-corespunzator tipului de date si o metoda pentru popularea database-ului.
+We have 3 types of databases: ActorDatabase, UserDatabase and VideoDatabase.
+Each has a LinkedHashMap field where we store the actors, users or
+videos from the input. VideoDatabase has 2, one for movies, one
+for series. Each has a query implementation method
+corresponding to the data type and a method for populating the database.
 
 ****************************************************************************
 
 ./src/entertainment
-    Clasa Video - o clasa abstracta care contine campurile si metodele comune
-pentru filme si seriale. Ce nu este in comun este implementat in clasele
-respective. Mai exact, difera modalitatea prin care se caluleaza ratingul
-si durata dar si cum adaugam un rating. Deci, rating, getDuration si addrating
-sunt metode abstracte, de impementat in Movie si Show.
+    Video class - an abstract class containing common fields and methods
+for movies and series. What is not common is implemented in the
+respective classes. Specifically, it differs how the rating is calculated
+and duration but also how we add a rating. So, rating, getDuration and addrating
+are abstract methods, to be implemented in Movie and Show.
 
-    Clasa Movie si Show - subclase pentru Video.
+    Class Movie and Show - subclasses for Video.
 
-    Clasa User - retine toate detaliile legate de user
+    User class - holds all user related details
 
 *****************************************************************************
 
-FLOW-UL PROGRAMULUI:
-    Se initializeaza bazele de date: actor, user si video.
-    Se ia fiecare actiune in parte si se apeleaza functia corespunzatoare:
-Command, Query sau Recommendation. Ele apeleaza diferite metode in functie
-de subtipul actiunii. Mesajele obtinute de ele sunt scrise in JSONArray.
-    Pentru Command, user are o functie pentru fiecare tip. Se modifica insa
-si videourile pentru a le adauga views, favourites sau ratinguri.
-    Pentru Query, fiecare clasa implicata are o functie care rezolva
-acel query. Toate presupun cam aceeasi pasi: creearea unui ArrayList query,
-sortarea dupa un anumit criteriu (longest, awards etc), si formularea
-mesajului de pus in JSONArray.
-    Pentru Recommend, toate functiile sunt in interfata. Prespune insa cam
-aceeasi pasi ca si query.
+PROGRAM FLOW:
+    Initialize the databases: actor, user and video.
+    Take each action individually and call the corresponding function:
+Command, Query or Recommendation. They call different methods depending on
+the subtype of the action. The messages obtained by them are written in JSONArray.
+    For Command, the user has one function for each type. Videos are modified to add 
+views, favourites or ratings.
+    For Query, each class involved has a function that resolves
+that query. They all involve pretty much the same steps: creating an ArrayList query,
+sorting by some criteria (longest, awards etc), and formulating
+the message to put in the JSONArray.
+    For Recommend, all functions are in the interface. But it requires about
+same steps as query.
